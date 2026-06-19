@@ -1,0 +1,578 @@
+# ---------------------ONEEEEEE----------------------------------------------
+
+import gensim.downloader as api
+import numpy as np
+from numpy.linalg import norm
+
+print("Loading pre-trained word vectors...")
+word_vectors = api.load("word2vec-google-news-300")
+
+def explore_word_relationships(word1, word2, word3):
+    try:
+        vec1 = word_vectors[word1]
+        vec2 = word_vectors[word2]
+        vec3 = word_vectors[word3]
+
+        result_vector = vec1 - vec2 + vec3
+        similar_words = word_vectors.similar_by_vector(result_vector, topn=10)
+
+        input_words = {word1, word2, word3}
+
+        filtered_words = [
+            (word, similarity)
+            for word, similarity in similar_words
+            if word not in input_words
+        ]
+
+        print(f"Word Relationship: {word1} - {word2} + {word3}")
+        print("Similar words:")
+
+        for word, similarity in filtered_words[:5]:
+            print(f"{word}: {similarity:.4f}")
+
+    except KeyError as e:
+        print(f"Error: {e} not found in vocabulary.")
+
+explore_word_relationships("king", "man", "woman")
+explore_word_relationships("paris", "france", "germany")
+explore_word_relationships("apple", "fruit", "carrot")
+
+def analyze_similarity(word1, word2):
+    try:
+        similarity = word_vectors.similarity(word1, word2)
+
+        print(f"Similarity between '{word1}' and '{word2}' is: {similarity:.4f}")
+
+    except KeyError as e:
+        print(f"Error: {e} not found in vocabulary.")
+
+analyze_similarity("cat", "dog")
+analyze_similarity("computer", "keyboard")
+analyze_similarity("music", "art")
+
+def most_similar_word(word):
+    try:
+        similar_words = word_vectors.most_similar(word, topn=5)
+
+        print(f"Most similar words to '{word}':")
+
+        for similar_word, similarity in similar_words:
+            print(f"{similar_word}: {similarity:.4f}")
+
+    except KeyError as e:
+        print(f"Error: {e} not found in vocabulary.")
+
+most_similar_word("happy")
+most_similar_word("sad")
+most_similar_word("technology")
+
+# ------------------------------TWOOOOO-------------------------------------
+
+import gensim.downloader as api
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+
+print("Loading pre-trained Word2Vec model...")
+word_vectors = api.load("word2vec-google-news-300")
+
+def generate_similar_words(word):
+    try:
+        similar_words = word_vectors.most_similar(word, topn=5)
+
+        print(f"\nTop 5 semantically similar words to '{word}':")
+
+        for w, score in similar_words:
+            print(f"{w}: {score:.4f}")
+
+    except KeyError:
+        print(f"Word '{word}' not found in vocabulary.")
+
+generate_similar_words("king")
+generate_similar_words("computer")
+
+def explore_word_relationships(word1, word2, word3):
+    try:
+        vec1 = word_vectors[word1]
+        vec2 = word_vectors[word2]
+        vec3 = word_vectors[word3]
+
+        result_vector = vec1 - vec2 + vec3
+        similar_words = word_vectors.similar_by_vector(result_vector, topn=10)
+
+        input_words = {word1, word2, word3}
+
+        filtered_words = [
+            (word, similarity)
+            for word, similarity in similar_words
+            if word not in input_words
+        ]
+
+        print(f"\nWord Relationship: {word1} - {word2} + {word3}")
+
+        for word, similarity in filtered_words[:5]:
+            print(f"{word}: {similarity:.4f}")
+
+    except KeyError as e:
+        print(f"Error: {e} not found in vocabulary.")
+
+explore_word_relationships("king", "man", "woman")
+
+def visualize_embeddings(domain_words, title, method='pca'):
+    vectors = np.array([word_vectors[word] for word in domain_words])
+
+    if method == 'pca':
+        reducer = PCA(n_components=2)
+    else:
+        reducer = TSNE(n_components=2, random_state=42, perplexity=5)
+
+    reduced_vectors = reducer.fit_transform(vectors)
+
+    plt.figure(figsize=(8, 6))
+
+    for i, word in enumerate(domain_words):
+        plt.scatter(reduced_vectors[i, 0], reduced_vectors[i, 1])
+        plt.text(reduced_vectors[i, 0], reduced_vectors[i, 1], word)
+
+    plt.title(f"{title} ({method.upper()})")
+    plt.grid(True)
+    plt.show()
+
+royal_words = [
+    "king", "queen", "prince", "princess", "kingdom",
+    "throne", "palace", "crown", "royal", "empire"
+]
+
+tech_words = [
+    "computer", "software", "hardware", "algorithm", "data",
+    "network", "programming", "machine", "learning", "artificial"
+]
+
+visualize_embeddings(royal_words, "Royal Domain Visualization", method='pca')
+visualize_embeddings(royal_words, "Royal Domain Visualization", method='tsne')
+
+visualize_embeddings(tech_words, "Technology Domain Visualization", method='pca')
+visualize_embeddings(tech_words, "Technology Domain Visualization", method='tsne')
+
+# ----------------------THREEE---------------------------------------------
+
+from gensim.models import Word2Vec
+import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
+import numpy as np
+import re
+
+medical_corpus = [
+    "The patient was diagnosed with diabetes and hypertension",
+    "MRI scans reveal abnormalities in brain tissue",
+    "Treatment involves antibiotics and regular monitoring",
+    "Symptoms include fever fatigue and muscle pain",
+    "Vaccine is effective against viral infections",
+    "Doctors recommend physical therapy for recovery",
+    "Clinical trial results were published in journal",
+    "Surgeon performed minimally invasive procedure",
+    "Prescription includes pain relievers and anti inflammatory drugs",
+    "Diagnosis confirmed rare genetic disorder"
+]
+
+def preprocess(text):
+    text = text.lower()
+    text = re.sub(r'[^a-z\s]', '', text)
+    return text.split()
+
+processed_corpus = [preprocess(sentence) for sentence in medical_corpus]
+
+print("Training Word2Vec model...")
+
+model = Word2Vec(
+    sentences=processed_corpus,
+    vector_size=100,
+    window=3,
+    min_count=1,
+    workers=4,
+    epochs=100
+)
+
+print("Training complete!")
+
+def find_similar_words(word):
+    try:
+        similar = model.wv.most_similar(word, topn=5)
+
+        print(f"\nTop 5 words similar to '{word}':")
+
+        for w, score in similar:
+            print(f"{w} ({score:.3f})")
+
+    except KeyError:
+        print("Word not found in vocabulary")
+
+find_similar_words("treatment")
+find_similar_words("vaccine")
+
+words = list(model.wv.index_to_key)
+embeddings = np.array([model.wv[word] for word in words])
+
+tsne = TSNE(n_components=2, random_state=42, perplexity=5)
+tsne_result = tsne.fit_transform(embeddings)
+
+plt.figure(figsize=(10, 8))
+plt.scatter(tsne_result[:, 0], tsne_result[:, 1])
+
+for i, word in enumerate(words):
+    plt.text(tsne_result[i, 0], tsne_result[i, 1], word)
+
+plt.title("Medical Domain Word Embeddings")
+plt.grid(True)
+plt.show()
+
+# --------------------------FOURRRR-----------------------------------------
+
+import gensim.downloader as api
+from transformers import pipeline
+
+print("Loading GloVe word embeddings...")
+word_vectors = api.load("glove-wiki-gigaword-100")
+
+def enrich_prompt(prompt, keyword, topn=3):
+    try:
+        similar_words = word_vectors.most_similar(keyword, topn=topn)
+
+        similar_terms = [word for word, score in similar_words]
+
+        print(f"\nSimilar words for '{keyword}': {similar_terms}")
+
+        enriched_prompt = (
+            prompt +
+            " Include related concepts such as " +
+            ", ".join(similar_terms) + "."
+        )
+
+        return enriched_prompt
+
+    except KeyError:
+        print("Keyword not found in vocabulary.")
+        return prompt
+
+print("Loading distilgpt2 model...")
+
+generator = pipeline(
+    "text-generation",
+    model="distilgpt2"
+)
+
+def generate_response(prompt):
+    response = generator(
+        prompt,
+        max_new_tokens=100,
+        do_sample=True,
+        temperature=0.8,
+        top_k=50,
+        top_p=0.9,
+        repetition_penalty=1.2,
+        no_repeat_ngram_size=3,
+        pad_token_id=50256
+    )
+
+    return response[0]['generated_text']
+
+original_prompt = "Explain the responsibilities of a king in a kingdom."
+
+print("\nOriginal Prompt:")
+print(original_prompt)
+
+enriched_prompt = enrich_prompt(original_prompt, "king")
+
+print("\nEnriched Prompt:")
+print(enriched_prompt)
+
+print("\nGenerating response for original prompt...")
+original_response = generate_response(original_prompt)
+
+print("\nGenerating response for enriched prompt...")
+enriched_response = generate_response(enriched_prompt)
+
+print("\nOriginal Response:\n")
+print(original_response)
+
+print("\nEnriched Response:\n")
+print(enriched_response)
+
+print("\nComparison:")
+print("Original Response Length:", len(original_response))
+print("Enriched Response Length:", len(enriched_response))
+
+# -------------------------------------------------------------------
+# --------------------------FIVEEEE-----------------------------------------
+
+import gensim.downloader as api
+import random
+
+print("Loading word vectors...")
+word_vectors = api.load("glove-wiki-gigaword-100")
+
+print("Model loaded successfully!\n")
+
+seed_word = input("Enter a seed word: ")
+
+try:
+    similar = word_vectors.most_similar(seed_word, topn=5)
+
+    words = [word for word, score in similar]
+
+    print("\nSimilar words:", words)
+
+    random.shuffle(words)
+
+    paragraph = (
+        f"The word '{seed_word}' often reminds people of {words[0]} and {words[1]}. "
+        f"In many discussions, {words[2]} is closely connected with {seed_word}. "
+        f"People may also think about {words[3]} when talking about {seed_word}. "
+        f"Together, ideas like {words[4]} help explain the broader meaning of '{seed_word}'."
+    )
+
+    print("\nGenerated Paragraph:\n")
+    print(paragraph)
+
+except KeyError:
+    print("Word not found in vocabulary. Please try another word.")
+
+# -------------------------SIXXXX------------------------------------------
+
+from transformers import pipeline
+
+print("Loading Sentiment Analysis Model...")
+
+sentiment_analyzer = pipeline("sentiment-analysis")
+
+reviews = [
+    "The product is amazing! I love it.",
+    "I am very disappointed with the service.",
+    "It was an average experience.",
+    "Absolutely fantastic quality!",
+    "Not great, but not very bad either."
+]
+
+print("\nCustomer Sentiment Analysis:\n")
+
+for review in reviews:
+    result = sentiment_analyzer(review)[0]
+
+    print("Review:", review)
+    print("Sentiment:", result['label'])
+    print("Confidence:", round(result['score'], 4))
+    print()
+
+# -------------------------SEVENNN------------------------------------------
+from transformers import pipeline
+
+print("Loading Summarization Model (BART)...")
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+
+def summarize_text(text):
+    text = " ".join(text.split())
+
+    max_length = min(len(text) // 3, 150)
+    min_length = max(30, max_length // 3)
+
+    summary = summarizer(
+        text,
+        max_length=max_length,
+        min_length=min_length,
+        do_sample=False
+    )
+
+    return summary[0]['summary_text']
+
+long_text = """
+Artificial Intelligence (AI) is a rapidly evolving field of computer science that focuses on creating systems capable of performing tasks that typically require human intelligence. These tasks include learning, reasoning, problem-solving, perception, and language understanding. AI has applications in various industries such as healthcare, finance, education, and transportation. Machine learning, a subset of AI, enables systems to learn from data and improve their performance over time without being explicitly programmed. Deep learning, which is based on neural networks, has significantly advanced areas like image recognition and natural language processing. Despite its benefits, AI also raises ethical concerns such as job displacement, bias, and privacy issues.
+"""
+
+result = summarize_text(long_text)
+
+print("\nOriginal Text:\n", long_text)
+print("\nSummarized Text:\n", result)
+----------------------------EIGHTTT-----------------------------------------------------
+from langchain_core.prompts import PromptTemplate
+from langchain_cohere import ChatCohere
+file_path = "Teaching.txt"
+
+try:
+    with open(file_path, "r", encoding="utf-8") as file:
+        text_content = file.read()
+    print("File loaded successfully!")
+
+except FileNotFoundError:
+    print("Error: 'Teaching.txt' not found. Keep it in the same folder.")
+    exit()
+COHERE_API_KEY = input("Enter your Cohere API Key: ")
+llm = ChatCohere(
+    cohere_api_key=COHERE_API_KEY,
+    model="command-a-03-2025"
+)
+
+template = """
+You are an AI assistant.
+
+Read the following text and provide:
+1. A short Summary
+2. Three Key Points
+3. Sentiment (Positive/Negative/Neutral)
+
+Text:
+{text}
+"""
+
+prompt = PromptTemplate(
+    input_variables=["text"],
+    template=template
+)
+formatted_prompt = prompt.format(text=text_content)
+
+try:
+    response = llm.invoke(formatted_prompt)
+
+    print("\n===== OUTPUT =====\n")
+    print(response.content)
+
+except Exception as e:
+    print("Error during execution:", e)
+---------------------------------NINEEE--------------------------------------------------
+from pydantic import BaseModel
+from typing import Optional, List
+import wikipediaapi
+import re
+
+class InstitutionDetails(BaseModel):
+    founder: Optional[str]
+    founded: Optional[str]
+    branches: Optional[List[str]]
+    employees: Optional[str]
+    summary: Optional[str]
+
+class InstitutionParser:
+    @staticmethod
+    def parse(page):
+        founder = founded = employees = None
+
+        for line in page.text.split("\n"):
+            if "founder" in line.lower() and not founder:
+                founder = line.strip()
+            if "founded" in line.lower() and not founded:
+                founded = line.strip()
+
+        match = re.search(r'(\d{3,},?\d*)\s+employees', page.text, re.I)
+        if match:
+            employees = match.group(1)
+
+        return InstitutionDetails(
+            founder=founder,
+            founded=founded,
+            branches=["Information available on Wikipedia page"],
+            employees=employees,
+            summary=". ".join(page.summary.split(". ")[:4])
+        )
+
+wiki = wikipediaapi.Wikipedia(
+    user_agent="GenAI-Lab/1.0",
+    language="en"
+)
+
+name = input("Enter Institution Name: ")
+page = wiki.page(name)
+
+if page.exists():
+    details = InstitutionParser.parse(page)
+
+    print("\n===== OUTPUT =====\n")
+    print("Founder:", details.founder or "N/A")
+    print("Founded:", details.founded or "N/A")
+    print("Branches:", details.branches)
+    print("Employees:", details.employees or "N/A")
+    print("Summary:", details.summary)
+else:
+    print("Page not found!")
+-----------------------------------TENNN--------------------------------------------------------------------------
+from langchain_cohere import ChatCohere
+from pydantic import BaseModel
+import wikipediaapi
+
+# API Key
+api_key = input("Enter your Cohere API Key: ")
+
+# LLM
+llm = ChatCohere(
+    cohere_api_key=api_key,
+    model="command-a-03-2025"
+)
+
+# Fetch IPC summary from Wikipedia
+wiki = wikipediaapi.Wikipedia(
+    user_agent="IPCChatbot/1.0",
+    language="en"
+)
+
+page = wiki.page("Indian Penal Code")
+
+if not page.exists():
+    raise ValueError("IPC page not found")
+
+ipc_content = page.summary
+
+
+class IPCResponse(BaseModel):
+    section: str | None = None
+    explanation: str
+
+
+def get_ipc_response(question):
+    prompt = f"""
+You are an expert legal assistant for the Indian Penal Code (IPC).
+
+Use the following reference content:
+{ipc_content}
+
+User Question: {question}
+
+Respond strictly in this format:
+
+Section: <section number if applicable>
+
+Explanation: <clear explanation>
+"""
+
+    output = llm.invoke(prompt).content
+
+    section = None
+    explanation = output
+
+    if "Section:" in output:
+        parts = output.split("Explanation:")
+        section = parts[0].replace("Section:", "").strip()
+        explanation = parts[1].strip() if len(parts) > 1 else ""
+
+    return IPCResponse(
+        section=section,
+        explanation=explanation
+    )
+
+
+print("\nIPC Chatbot Ready! Type 'exit' to quit.\n")
+
+while True:
+    question = input("You: ")
+
+    if question.lower() == "exit":
+        print("Exiting chatbot...")
+        break
+
+    try:
+        result = get_ipc_response(question)
+
+        print("\nSection:", result.section or "N/A")
+        print("Explanation:", result.explanation, "\n")
+
+    except Exception as e:
+        print("Error:", e)
+------------------------------------------------------------------------------------------------------------
