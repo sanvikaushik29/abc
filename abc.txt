@@ -1,5 +1,35 @@
 python -m venv myenv
 myenv\Scripts\activate
+
+Program 1 (Word2Vec Relationships)
+pip install gensim numpy scipy
+
+Program 2 (Word Embeddings Visualization)
+pip install gensim numpy scipy matplotlib scikit-learn
+
+Program 3 (Custom Medical Word2Vec)
+pip install gensim numpy scipy matplotlib scikit-learn
+
+Program 4 (Prompt Enrichment + GPT2)
+pip install gensim numpy scipy transformers torch sentencepiece accelerate
+
+Program 5 (Paragraph Generation from Similar Words)
+pip install gensim numpy scipy
+
+Program 6 (Sentiment Analysis)
+pip install transformers torch sentencepiece accelerate
+
+Program 7 (Text Summarization)
+pip install transformers torch sentencepiece accelerate
+
+Program 8 (LangChain + Cohere)
+pip install langchain-core langchain-cohere cohere
+
+Program 9 (Wikipedia + Pydantic)
+pip install pydantic wikipedia-api
+
+Program 10 (IPC Chatbot)
+pip install langchain-cohere cohere pydantic wikipedia-api
 # ---------------------ONEEEEEE----------------------------------------------
 
 import gensim.downloader as api
