@@ -1,4 +1,4 @@
-python -m venv myenv
+.python -m venv myenv
 myenv\Scripts\activate
 
 Program 1 (Word2Vec Relationships)
