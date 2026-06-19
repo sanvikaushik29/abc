@@ -1,3 +1,5 @@
+python -m venv myenv
+myenv\Scripts\activate
 # ---------------------ONEEEEEE----------------------------------------------
 
 import gensim.downloader as api
@@ -394,6 +396,7 @@ result = summarize_text(long_text)
 print("\nOriginal Text:\n", long_text)
 print("\nSummarized Text:\n", result)
 ----------------------------EIGHTTT-----------------------------------------------------
+pip install langchain-core langchain-cohere cohere
 from langchain_core.prompts import PromptTemplate
 from langchain_cohere import ChatCohere
 file_path = "Teaching.txt"
@@ -439,6 +442,7 @@ try:
 except Exception as e:
     print("Error during execution:", e)
 ---------------------------------NINEEE--------------------------------------------------
+pip install pydantic wikipedia-api
 from pydantic import BaseModel
 from typing import Optional, List
 import wikipediaapi
@@ -494,6 +498,7 @@ if page.exists():
 else:
     print("Page not found!")
 -----------------------------------TENNN--------------------------------------------------------------------------
+pip install langchain-cohere cohere pydantic wikipedia-api
 from langchain_cohere import ChatCohere
 from pydantic import BaseModel
 import wikipediaapi
